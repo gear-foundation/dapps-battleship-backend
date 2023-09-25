@@ -33,7 +33,8 @@ const createVoucher = async (accountUser: HexString) => {
   const programId = GAME_ADDRESS as HexString;
   const account = decodeAddress(accountUser);
 
-  const tx = api.voucher.issue(account, programId, 10000000000000);
+  // Specify the number of issues
+  const tx = api.voucher.issue(account, programId, 100000000000000);
 
   const extrinsic = tx.extrinsic;
   const voucherExists = await api.voucher.exists(programId, account);
