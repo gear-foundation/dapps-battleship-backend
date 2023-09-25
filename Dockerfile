@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+ARG NODE_ADDRESS \
+    GAME_ADDRESS \
+    PATH_TO_KEYS \
+    KEYRING_PASSPHRASE
+ENV NODE_ADDRESS=${NODE_ADDRESS} \
+    GAME_ADDRESS=${GAME_ADDRESS} \
+    PATH_TO_KEYS=${PATH_TO_KEYS} \
+    KEYRING_PASSPHRASE=${KEYRING_PASSPHRASE}
+    
+WORKDIR /app
+COPY . .
+
+RUN npm install
+RUN npm run build
+
+CMD ["node", "dist/index.js"]
