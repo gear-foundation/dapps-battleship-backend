@@ -12,7 +12,7 @@ ENV NODE_ADDRESS=${NODE_ADDRESS} \
 WORKDIR /app
 COPY . .
 
-RUN npm install
-RUN npm run build
+RUN yarn install
+RUN yarn build
 
 CMD ["node", "dist/index.js"]
