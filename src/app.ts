@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { readFileSync } from "fs";
 import {
@@ -12,6 +13,8 @@ import { HexString } from "@polkadot/util/types";
 dotenv.config();
 
 const app: Express = express();
+app.use(cors());
+app.use(express.json());
 const port = process.env.PORT;
 
 const NODE_ADDRESS = process.env.NODE_ADDRESS;
@@ -22,50 +25,57 @@ const KEYRING_PASSPHRASE = process.env.KEYRING_PASSPHRASE;
 const jsonKeyring = readFileSync(KEYRING_PATH).toString();
 const KEYRING = GearKeyring.fromJson(jsonKeyring, KEYRING_PASSPHRASE);
 
-const createVoucher = async () => {
+const createVoucher = async (accountUser: HexString) => {
   const api = await GearApi.create({
     providerAddress: NODE_ADDRESS,
   });
 
   const programId = GAME_ADDRESS as HexString;
-  const account = decodeAddress(KEYRING.address);
+  const account = decodeAddress(accountUser);
 
-  const tx = api.voucher.issue(account, programId, 10000);
+  const tx = api.voucher.issue(account, programId, 10000000000000);
 
   const extrinsic = tx.extrinsic;
   const voucherExists = await api.voucher.exists(programId, account);
 
-  if (voucherExists) {
-    return true;
-  }
+  if (voucherExists) return voucherExists;
 
   return new Promise((resolve, reject) => {
-    try {
-      extrinsic.signAndSend(KEYRING, ({ events, status }) => {
+    extrinsic
+      .signAndSend(KEYRING, async ({ events, status }) => {
         if (status.isInBlock) {
-          const viEvent = events.find(
-            ({ event }) => event.method === "VoucherIssued"
-          );
+          const viEvent = events.find(({ event }) => {
+            event.method === "VoucherIssued";
+            if (event.method === "ExtrinsicFailed") {
+              const error = api.getExtrinsicFailedError(event);
+              reject(error);
+            }
+          });
+
           const data = viEvent?.event.data as VoucherIssuedData;
 
           if (data) {
             resolve(true);
           }
         }
+      })
+      .catch((err) => {
+        reject(err);
       });
-    } catch (err) {
-      console.log(err);
-      new Error("Error during sending transaction");
-    }
   });
 };
 
-app.get("/", async (req: Request, res: Response) => {
+app.post("/", async (req: Request, res: Response) => {
   try {
-    const isVoucher = await createVoucher();
-    res.send(isVoucher);
+    const accountUser = req.body.account as HexString;
+
+    const voucher = await createVoucher(accountUser);
+
+    if (voucher) {
+      res.sendStatus(200);
+    }
   } catch (error) {
-    res.status(500);
+    res.status(500).send(error);
   }
 });
 
