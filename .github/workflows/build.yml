@@ -71,11 +71,6 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ needs.prepair.outputs.image_name }}
-          build-args: |
-            NODE_ADDRESS=${{ secrets.NODE_ADDRESS }}
-            GAME_ADDRESS=${{ secrets.GAME_ADDRESS }}
-            PATH_TO_KEYS=${{ secrets.PATH_TO_KEYS }}
-            KEYRING_PASSPHRASE=${{ secrets.KEYRING_PASSPHRASE }}
 
   deploy-to-k8s:
     needs: [prepair, build-and-push-image]
