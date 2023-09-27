@@ -34,23 +34,16 @@ const createVoucher = async (accountUser: HexString) => {
   const account = decodeAddress(accountUser);
 
   // Specify the number of issues
-  const tx = api.voucher.issue(account, programId, 100000000000000);
+  const tx = api.voucher.issue(account, programId, 50000000000000);
 
   const extrinsic = tx.extrinsic;
-  const voucherExists = await api.voucher.exists(programId, account);
-
-  if (voucherExists) return voucherExists;
 
   return new Promise((resolve, reject) => {
     extrinsic
       .signAndSend(KEYRING, async ({ events, status }) => {
         if (status.isInBlock) {
           const viEvent = events.find(({ event }) => {
-            event.method === "VoucherIssued";
-            if (event.method === "ExtrinsicFailed") {
-              const error = api.getExtrinsicFailedError(event);
-              reject(error);
-            }
+            return event.method === "VoucherIssued";
           });
 
           const data = viEvent?.event.data as VoucherIssuedData;
@@ -75,6 +68,14 @@ app.post("/", async (req: Request, res: Response) => {
     if (voucher) {
       res.sendStatus(200);
     }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.get("/", async (req: Request, res: Response) => {
+  try {
+    res.sendStatus(200);
   } catch (error) {
     res.status(500).send(error);
   }
