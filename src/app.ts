@@ -7,6 +7,7 @@ import {
   GearKeyring,
   decodeAddress,
   VoucherIssuedData,
+  CodeChangedData,
 } from "@gear-js/api";
 import { HexString } from "@polkadot/util/types";
 
@@ -40,17 +41,21 @@ const createVoucher = async (accountUser: HexString) => {
 
   return new Promise((resolve, reject) => {
     extrinsic
-      .signAndSend(KEYRING, async ({ events, status }) => {
+      .signAndSend(KEYRING, async ({ events, status, isError }) => {
         if (status.isInBlock) {
           const viEvent = events.find(({ event }) => {
             return event.method === "VoucherIssued";
           });
+          console.log("voucherIssuedEvent.toJSON()", viEvent?.toJSON());
 
           const data = viEvent?.event.data as VoucherIssuedData;
 
           if (data) {
             resolve(true);
           }
+        } else if (isError) {
+          const error = new Error(`Failed to create voucher`);
+          reject(error);
         }
       })
       .catch((err) => {
