@@ -6,9 +6,11 @@ This project allows you to create vouchers. Before running the backend server, i
 
 1. Build the smart contract as mentioned in the documentation. You can find an example build command in the [smart contract build example](https://github.com/gear-foundation/dapps/tree/master/contracts/battleship).
 
-2. For instructions on creating a Testnet account and deploying the contract, please refer to the [documentation](https://wiki.gear-tech.io/docs/getting-started-in-5-minutes/#deploy-your-smart-contract-to-the-testnet).
+2. Build and run user interface. Example build and run commands in the [frontend app example](https://github.com/gear-foundation/dapps/tree/master/frontend/battleship).
 
-3. Export the Testnet account credentials to a file, such as "account.json," and place it in the root folder of your project.
+3. For instructions on creating a Testnet account and deploying the contract, please refer to the [documentation](https://wiki.gear-tech.io/docs/getting-started-in-5-minutes/#deploy-your-smart-contract-to-the-testnet).
+
+4. Export the Testnet account credentials to a file, such as "account.json," and place it in the root folder of your project.
 
 ### Declare Environment Variables:
 Create a `.env` file; `.env.example` will let you know what variables are expected.
