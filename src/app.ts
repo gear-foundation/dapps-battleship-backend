@@ -7,7 +7,6 @@ import {
   GearKeyring,
   decodeAddress,
   VoucherIssuedData,
-  CodeChangedData,
 } from "@gear-js/api";
 import { HexString } from "@polkadot/util/types";
 
@@ -46,7 +45,6 @@ const createVoucher = async (accountUser: HexString) => {
           const viEvent = events.find(({ event }) => {
             return event.method === "VoucherIssued";
           });
-          console.log("voucherIssuedEvent.toJSON()", viEvent?.toJSON());
 
           const data = viEvent?.event.data as VoucherIssuedData;
 
