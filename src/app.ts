@@ -37,7 +37,7 @@ const createVoucher = async (accountUser: HexString) => {
   const tx = api.voucher.issue(
     account,
     programId,
-    50 * 10 ** api.registry.chainDecimals[0]
+    10 * 10 ** api.registry.chainDecimals[0]
   );
 
   const extrinsic = tx.extrinsic;
