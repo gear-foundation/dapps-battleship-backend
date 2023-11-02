@@ -34,7 +34,11 @@ const createVoucher = async (accountUser: HexString) => {
   const account = decodeAddress(accountUser);
 
   // Specify the number of issues
-  const tx = api.voucher.issue(account, programId, 50000000000000);
+  const tx = api.voucher.issue(
+    account,
+    programId,
+    50 * 10 ** api.registry.chainDecimals[0]
+  );
 
   const extrinsic = tx.extrinsic;
 
