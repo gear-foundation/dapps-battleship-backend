@@ -37,7 +37,7 @@ const createVoucher = async (accountUser: HexString) => {
   const tx = api.voucher.issue(
     account,
     programId,
-    10 * 10 ** api.registry.chainDecimals[0]
+    4 * 10 ** api.registry.chainDecimals[0]
   );
 
   const extrinsic = tx.extrinsic;
@@ -47,6 +47,12 @@ const createVoucher = async (accountUser: HexString) => {
       .signAndSend(KEYRING, async ({ events, status, isError }) => {
         if (status.isInBlock) {
           const viEvent = events.find(({ event }) => {
+            if (event.method === "ExtrinsicFailed") {
+              const error = api.getExtrinsicFailedError(event);
+
+              console.log("error", error);
+              reject(error);
+            }
             return event.method === "VoucherIssued";
           });
 
