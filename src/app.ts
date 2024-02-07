@@ -6,7 +6,7 @@ import { HexString } from '@polkadot/util/types';
 
 import { Accounts } from './entity/Account';
 import { AppDataSource } from './data-source';
-import { createVoucher } from './create-voucher';
+import { checkAndUpdateVoucher, createVoucher } from './create-voucher';
 
 dotenv.config();
 const app: Express = express();
@@ -22,20 +22,27 @@ app.post('/', async (req: Request, res: Response) => {
     let account = await accountRepo.findOne({ where: { account: accountUser } });
 
     if (!account) {
-      const { voucherId, programId, validForOneHour } = (await createVoucher(accountUser)) as any;
+      const result = await createVoucher(accountUser);
 
-      account = accountRepo.create({
-        account: accountUser,
-        programId: programId,
-        voucherId: voucherId,
-        validForOneHour: validForOneHour,
-      });
+      if (result) {
+        account = accountRepo.create({
+          account: accountUser,
+          programId: result.programId,
+          voucherId: result.voucherId,
+          validForOneHour: result.validForOneHour,
+        });
 
-      await accountRepo.save(account);
+        await accountRepo.save(account);
+      }
     }
 
     if (account) {
-      res.status(200).send(account.voucherId);
+      const voucherId = (await checkAndUpdateVoucher({
+        accountUser: account.account,
+        voucherId: account.voucherId,
+      })) as any;
+
+      res.status(200).send(voucherId);
     }
   } catch (error: any) {
     console.error('Error during voucher creation:', error);

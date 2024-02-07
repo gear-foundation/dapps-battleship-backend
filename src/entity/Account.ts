@@ -7,13 +7,13 @@ export class Accounts {
   id!: number;
 
   @Column()
-  account!: HexString;
+  account!: string;
 
   @Column()
-  programId!: HexString;
+  programId!: string;
 
   @Column()
-  voucherId!: HexString;
+  voucherId!: string;
 
   @Column()
   validForOneHour!: number;
