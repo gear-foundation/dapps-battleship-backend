@@ -40,7 +40,7 @@ export class Server {
     const program = req.body.program;
 
     if (!config.voucher.availablePrograms.has(program)) {
-      return res.status(400);
+      return res.status(400).json({ error: 'Requesting a voucher is not available for this program' });
     }
 
     const voucher = await this._voucherService.getVoucher(address, program);
